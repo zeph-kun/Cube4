@@ -8,6 +8,9 @@ namespace Cube_4.Datas
         public DbSet<User> Users { get; set; }
         public DbSet<Article> Articles { get; set; }
 
+        public DbSet<Fournisseur> Fournisseurs { get; set; }
+        public DbSet<Famille> Familles { get; set; }
+
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         {
         
