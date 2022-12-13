@@ -39,9 +39,9 @@ namespace Cube_4.Controllers
         }
         
         [HttpGet("commande/{commandeId}")] 
-        public IActionResult GetCommandById(int commandId)
+        public IActionResult GetCommandById(int commandeId)
         {
-            Commande? findCommand = context.Commandes.FirstOrDefault(x => x.Id == commandId);
+            Commande? findCommand = context.Commandes.FirstOrDefault(x => x.Id == commandeId);
 
             if (findCommand == null)
             {
@@ -129,9 +129,9 @@ namespace Cube_4.Controllers
             }
         }
         [HttpDelete("commande/{commandeId}")]
-        public IActionResult DeleteCommand(int commandId)
+        public IActionResult DeleteCommand(int commandeId)
         {
-            Commande? findCommand = context.Commandes.FirstOrDefault(x => x.Id == commandId);
+            Commande? findCommand = context.Commandes.FirstOrDefault(x => x.Id == commandeId);
 
             if (findCommand == null)
             {
