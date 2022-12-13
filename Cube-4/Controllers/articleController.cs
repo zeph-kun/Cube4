@@ -20,7 +20,7 @@ namespace Cube_4.Controllers
         public IActionResult GetArticles()
         {
             List<Article> myArticles = context.Articles.ToList();
-            
+
             if (myArticles.Count > 0)
             {
                 return Ok(new
@@ -29,7 +29,8 @@ namespace Cube_4.Controllers
                     Article = myArticles
                 });
 
-            } else
+            }
+            else
             {
                 return NotFound(new
                 {
@@ -37,6 +38,7 @@ namespace Cube_4.Controllers
                 });
             }
         }
+
         
         [HttpGet("articles/{articleId}")] 
         public IActionResult GetArticlesById(int articleId)
@@ -49,12 +51,13 @@ namespace Cube_4.Controllers
                 {
                     Message = "Aucun article trouvé avec cet ID !"
                 });
-            } else
+            }
+            else
             {
                 return Ok(new
                 {
                     Message = "Article trouvé !",
-                    Article = new ArticleDTO() { Id = findArticle.Id, Libelle = findArticle.Libelle, Prix = findArticle.Prix, Famille = findArticle.Famille, Fournisseur = findArticle.Fournisseur}
+                    Article = new ArticleDTO() { Id = findArticle.Id, Libelle = findArticle.Libelle, Prix = findArticle.Prix, Famille = findArticle.Famille, Fournisseur = findArticle.Fournisseur }
                 });
             }
         }
@@ -64,9 +67,48 @@ namespace Cube_4.Controllers
         {
             Article addArticle = new Article()
             {
-                Libelle = newArticle.Libelle, Prix = newArticle.Prix, Famille = newArticle.Famille,
+                Libelle = newArticle.Libelle,
+                Prix = newArticle.Prix,
+                Famille = newArticle.Famille,
                 Fournisseur = newArticle.Fournisseur
             };
+            if (newArticle.Fournisseur.Nom == "") {
+                if (newArticle.Fournisseur.Id != 0)
+                {
+                    Fournisseur? findFournisseur = context.Fournisseurs.FirstOrDefault(x => x.Id == newArticle.Fournisseur.Id);
+
+                    if (findFournisseur == null)
+                    {
+                        return NotFound(new
+                        {
+                            Message = "Aucun fournisseur trouvé avec cet ID !"
+                        });
+                    }
+                    else
+                    {
+                        addArticle.Fournisseur = findFournisseur;
+                    }
+                }
+            }
+            if (newArticle.Famille.Nom == "")
+            {
+                if (newArticle.Famille.Id != 0)
+                {
+                    Famille? findFamille = context.Familles.FirstOrDefault(x => x.Id == newArticle.Famille.Id);
+
+                    if (findFamille == null)
+                    {
+                        return NotFound(new
+                        {
+                            Message = "Aucune famille trouvée avec cet ID !"
+                        });
+                    }
+                    else
+                    {
+                        addArticle.Famille = findFamille;
+                    }
+                }
+            }
             context.Articles.Add(addArticle);
             if (context.SaveChanges() > 0)
             {
@@ -75,7 +117,8 @@ namespace Cube_4.Controllers
                     Message = "L'article a été ajouté avec succès!",
                     ArticleId = addArticle.Id
                 });
-            } else
+            }
+            else
             {
                 return BadRequest(new
                 {
@@ -83,19 +126,37 @@ namespace Cube_4.Controllers
                 });
             }
         }
-        
+
         [HttpPatch("articles")]
         public IActionResult EditArticle(ArticleDTO newInfos)
         {
             Article? findArticle = context.Articles.FirstOrDefault(x => x.Id == newInfos.Id);
 
-            if (findArticle != null )
+            if (findArticle != null)
             {
                 findArticle.Libelle = newInfos.Libelle;
                 findArticle.Prix = newInfos.Prix;
                 findArticle.Famille = newInfos.Famille;
                 findArticle.Fournisseur = newInfos.Fournisseur;
+                if (newInfos.Fournisseur.Nom == "")
+                {
+                    if (newInfos.Fournisseur.Id != 0)
+                    {
+                        Fournisseur? findFournisseur = context.Fournisseurs.FirstOrDefault(x => x.Id == newInfos.Fournisseur.Id);
 
+                        if (findFournisseur == null)
+                        {
+                            return NotFound(new
+                            {
+                                Message = "Aucun fournisseur trouvé avec cet ID !"
+                            });
+                        }
+                        else
+                        {
+                            findArticle.Fournisseur = findFournisseur;
+                        }
+                    }
+                }
                 context.Articles.Update(findArticle);
                 if (context.SaveChanges() > 0)
                 {
@@ -103,14 +164,16 @@ namespace Cube_4.Controllers
                     {
                         Message = "L'article a bien été modifié !"
                     });
-                } else
+                }
+                else
                 {
                     return BadRequest(new
                     {
                         Message = "Une erreur a eu lieu durant la modification..."
                     });
                 }
-            } else
+            }
+            else
             {
                 return NotFound(new
                 {
@@ -139,7 +202,8 @@ namespace Cube_4.Controllers
                     {
                         Message = "L'article a bien été supprimé",
                     });
-                } else
+                }
+                else
                 {
                     return BadRequest(new
                     {
