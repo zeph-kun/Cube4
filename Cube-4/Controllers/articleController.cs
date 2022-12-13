@@ -39,7 +39,7 @@ namespace Cube_4.Controllers
         }
         
         [HttpGet("articles/{articleId}")] 
-        public IActionResult GetDogById(int articleId)
+        public IActionResult GetArticlesById(int articleId)
         {
             Article? findArticle = context.Articles.FirstOrDefault(x => x.Id == articleId);
 
@@ -60,7 +60,7 @@ namespace Cube_4.Controllers
         }
 
         [HttpPost("articles")]
-        public IActionResult add_articles(ArticleDTO newArticle)
+        public IActionResult AddArticles(ArticleDTO newArticle)
         {
             Article addArticle = new Article()
             {
@@ -119,7 +119,7 @@ namespace Cube_4.Controllers
             }
         }
         [HttpDelete("articles/{articleId}")]
-        public IActionResult DeleteDog(int articleId)
+        public IActionResult DeleteArticle(int articleId)
         {
             Article? findArticle = context.Articles.FirstOrDefault(x => x.Id == articleId);
 
