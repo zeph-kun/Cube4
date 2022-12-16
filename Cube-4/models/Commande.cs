@@ -17,5 +17,6 @@ namespace Cube_4.models
         [ForeignKey("Article")]
         public int ArticleId { get; set; }
         public Article Article { get; set; }
+        public bool isFournisseur { get; set; }
     }
 }

@@ -12,6 +12,7 @@ namespace Cube_4.Datas
 
         public DbSet<Fournisseur> Fournisseurs { get; set; }
         public DbSet<Famille> Familles { get; set; }
+        public DbSet<Stock> Stocks { get; set; }
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         {

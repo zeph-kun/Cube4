@@ -60,7 +60,7 @@ namespace Cube_4.Controllers
         }
 
         [HttpPost("commande")]
-        public IActionResult AddCommand(CommandeDTO newCommand, int userId, int articleId)
+        public IActionResult AddCommand(CommandeDTO newCommand, int userId, int articleId, int quantite, bool isFournisseur)
         {
             User? findUser = context.Users.FirstOrDefault(x => x.Id == userId);
             Article? findArticle = context.Articles.FirstOrDefault(x => x.Id == articleId);
@@ -72,26 +72,102 @@ namespace Cube_4.Controllers
                     Message = "Aucun User trouvé avec cet ID !"
                 });
             }
-            Commande addCommand = new Commande()
-            {
-                Quantite = newCommand.Quantite, Date = newCommand.Date, User = findUser,
-                Article = findArticle
-            };
-            context.Commandes.Add(addCommand);
-            if (context.SaveChanges() > 0)
-            {
-                return Ok(new
+            if (findUser.IsAdmin == true && isFournisseur == true) {
+                Commande addCommandFournisseur = new Commande()
                 {
-                    Message = "La commande a été ajouté avec succès!",
-                    CommandeId = addCommand.Id
-                });
-            } else
-            {
-                return BadRequest(new
+                    Quantite = quantite,
+                    Date = newCommand.Date,
+                    User = findUser,
+                    Article = findArticle,
+                    isFournisseur = true
+                };
+                Stock? findStockFournisseur = context.Stocks.FirstOrDefault(x => x.ArticleId == articleId);
+                if (findStockFournisseur == null)
                 {
-                    Message = "Une erreur est survenue..."
-                });
+                    return NotFound(new
+                    {
+                        Message = "Aucun Article correspondant dans le stock !"
+                    });
+                }
+                findStockFournisseur.Quantite += addCommandFournisseur.Quantite;
+                context.Commandes.Add(addCommandFournisseur);
+                context.Stocks.Update(findStockFournisseur);
+                if (context.SaveChanges() > 0)
+                {
+                    return Ok(new
+                    {
+                        Message = "La commande a été ajouté avec succès!",
+                        CommandeId = addCommandFournisseur.Id
+                    });
+                }
+                else
+                {
+                    return BadRequest(new
+                    {
+                        Message = "Une erreur est survenue..."
+                    });
+                }
             }
+            else
+            {
+                Commande addCommand = new Commande()
+                {
+                    Quantite = quantite,
+                    Date = newCommand.Date,
+                    User = findUser,
+                    Article = findArticle,
+                    isFournisseur = false
+                };
+                Stock? findStock = context.Stocks.FirstOrDefault(x => x.ArticleId == articleId);
+                if (findStock == null)
+                {
+                    return NotFound(new
+                    {
+                        Message = "Aucun Article correspondant dans le stock !"
+                    });
+                }
+                findStock.Quantite -= addCommand.Quantite;
+                if (findStock.Quantite < 0)
+                {
+                    Commande addCommandFournisseur = new Commande()
+                    {
+                        Quantite = Math.Abs(findStock.Quantite),
+                        Date = newCommand.Date,
+                        User = findUser,
+                        Article = findArticle,
+                        isFournisseur = true
+                    };
+                    Stock? findStockFournisseur = context.Stocks.FirstOrDefault(x => x.ArticleId == articleId);
+                    if (findStockFournisseur == null)
+                    {
+                        return NotFound(new
+                        {
+                            Message = "Aucun Article correspondant dans le stock !"
+                        });
+                    }
+                    findStockFournisseur.Quantite += addCommandFournisseur.Quantite;
+                    context.Commandes.Add(addCommandFournisseur);
+                }
+                context.Commandes.Add(addCommand);
+                context.Stocks.Update(findStock);
+                if (context.SaveChanges() > 0)
+                {
+                    return Ok(new
+                    {
+                        Message = "La commande a été ajouté avec succès!",
+                        CommandeId = addCommand.Id
+                    });
+                }
+                else
+                {
+                    return BadRequest(new
+                    {
+                        Message = "Une erreur est survenue..."
+                    });
+                }
+            }
+            
+            
         }
         
         [HttpPatch("commande")]
